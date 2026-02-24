@@ -19,17 +19,41 @@ let parseValue (value: string) =
             | true, dt -> box dt
             | _ -> box value
 
-// Function to read CSV file and return sequence of maps
+// Function to read CSV file and return a result with a sequence of maps or an error
 let readCsv filePath =
-    let lines = File.ReadAllLines(filePath)
-    let headers = lines.[0].Split(',') |> List.ofArray
-    lines
-    |> Seq.skip 1
-    |> Seq.map (fun line ->
-        let values = line.Split(',')
-        headers
-        |> Seq.mapi (fun i header -> header, parseValue values.[i])
-        |> Map.ofSeq)
+    try
+        let lines = File.ReadAllLines(filePath)
+        if lines.Length = 0 then
+            Error "CSV file is empty or header is missing."
+        else
+            let headers = lines.[0].Split(',') |> List.ofArray
+            
+            let isData (s: string) =
+                let mutable i = 0
+                let mutable d = 0m
+                let mutable dt = System.DateTime.MinValue
+                System.Int32.TryParse(s, &i) || System.Decimal.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, &d) || System.DateTime.TryParse(s, &dt)
+
+            let dataLikeCount = headers |> List.filter isData |> List.length
+            
+            if dataLikeCount > headers.Length / 2 then
+                Error "The first line of the CSV appears to be data, not a header."
+            else
+                let data =
+                    lines
+                    |> Seq.skip 1
+                    |> Seq.map (fun line ->
+                        let values = line.Split(',')
+                        headers
+                        |> Seq.mapi (fun i header ->
+                            if i < values.Length then
+                                header, parseValue values.[i]
+                            else
+                                header, box "") // Handle rows with fewer columns than headers
+                        |> Map.ofSeq)
+                Ok data
+    with
+    | ex -> Error $"An error occurred while reading the CSV file: %s{ex.Message}"
 
 // Generic analysis functions
 let countRows (rows: seq<CsvRow>) = Seq.length rows
@@ -40,7 +64,7 @@ let getNumericColumns (rows: seq<CsvRow>) =
     |> Map.keys
     |> Seq.filter (fun col ->
         rows
-        |> Seq.take 5  // Sample first 5 rows
+        |> Seq.truncate 5  // Sample first 5 rows
         |> Seq.forall (fun row ->
             match Map.tryFind col row with
             | Some (:? int) | Some (:? decimal) -> true
@@ -86,43 +110,51 @@ let main argv =
         printfn "Error: File '%s' not found." filePath
         1
     else
-        let rows = readCsv filePath
-        let rowCount = countRows rows
-        let numericCols = getNumericColumns rows |> Seq.toList
+        match readCsv filePath with
+        | Error msg ->
+            printfn "Error: %s" msg
+            1
+        | Ok rows ->
+            let rowCount = countRows rows
+            let numericCols = getNumericColumns rows |> Seq.toList
 
-        printfn "Universal Functional Data Analysis"
-        printfn "=================================="
-        printfn "File: %s" filePath
-        printfn "Rows: %d" rowCount
-        printfn ""
-
-        if numericCols.IsEmpty then
-            printfn "No numeric columns found for analysis."
-        else
-            printfn "Numeric Columns Analysis:"
-            for col in numericCols do
-                match columnStats rows col with
-                | Some (sum, avg, min, max, count) ->
-                    printfn "  %s:" col
-                    printfn "    Count: %d" count
-                    printfn "    Sum: %.2f" sum
-                    printfn "    Average: %.2f" avg
-                    printfn "    Min: %.2f" min
-                    printfn "    Max: %.2f" max
-                | None -> ()
+            printfn "Universal Functional Data Analysis"
+            printfn "=================================="
+            printfn "File: %s" filePath
+            printfn "Rows: %d" rowCount
             printfn ""
 
-            // If we have at least 2 columns, try grouping
-            let headers = rows |> Seq.head |> Map.keys |> Seq.toList
-            if headers.Length >= 2 then
-                let groupCol = headers.[0]  // First column as group
-                let valueCol = numericCols |> List.tryHead  // First numeric column
-                match valueCol with
-                | Some vc ->
-                    printfn "Grouped Analysis (%s by %s):" vc groupCol
-                    groupByColumn rows groupCol vc
-                    |> Seq.iter (fun (key, sum, count) ->
-                        printfn "  %s: %.2f (count: %d)" key sum count)
-                | None -> ()
+            if numericCols.IsEmpty then
+                printfn "No numeric columns found for analysis."
+            else
+                printfn "Numeric Columns Analysis:"
+                for col in numericCols do
+                    match columnStats rows col with
+                    | Some (sum, avg, min, max, count) ->
+                        printfn "  %s:" col
+                        printfn "    Count: %d" count
+                        printfn "    Sum: %.2f" sum
+                        printfn "    Average: %.2f" avg
+                        printfn "    Min: %.2f" min
+                        printfn "    Max: %.2f" max
+                    | None -> ()
+                printfn ""
 
-        0 // return an integer exit code
+                // If we have at least 2 columns, try grouping
+                let headers =
+                    rows
+                    |> Seq.tryHead
+                    |> Option.map (fun head -> Map.keys head |> Seq.toList)
+                    |> Option.defaultValue []
+
+                if headers.Length >= 2 then
+                    let groupCol = headers.[0]  // First column as group
+                    let valueCol = numericCols |> List.tryHead  // First numeric column
+                    match valueCol with
+                    | Some vc ->
+                        printfn "Grouped Analysis (%s by %s):" vc groupCol
+                        groupByColumn rows groupCol vc
+                        |> Seq.iter (fun (key, sum, count) ->
+                            printfn "  %s: %.2f (count: %d)" key sum count)
+                    | None -> ()
+            0 // return an integer exit code
