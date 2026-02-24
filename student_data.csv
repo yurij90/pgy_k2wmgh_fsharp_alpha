@@ -1,0 +1,9 @@
+StudentID,Name,Course,Grade,Attendance,StudyHours
+S001,Alice,Math,85,95,12
+S002,Bob,Science,92,88,15
+S003,Charlie,History,78,92,8
+S004,Diana,English,88,96,10
+S005,Eve,Math,91,90,14
+S006,Frank,Science,76,85,6
+S007,Grace,History,89,94,11
+S008,Henry,English,82,87,9

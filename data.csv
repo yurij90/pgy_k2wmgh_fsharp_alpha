@@ -1,0 +1,11 @@
+Product,Category,Quantity,Price,Date
+Laptop,Electronics,5,1200.00,2024-01-15
+Mouse,Electronics,10,25.50,2024-01-16
+Book,Education,20,15.99,2024-01-17
+Chair,Furniture,3,150.00,2024-01-18
+Monitor,Electronics,7,300.00,2024-01-19
+Notebook,Education,15,5.99,2024-01-20
+Desk,Furniture,2,250.00,2024-01-21
+Keyboard,Electronics,8,75.00,2024-01-22
+Pen,Education,50,1.50,2024-01-23
+Lamp,Furniture,4,45.00,2024-01-24
