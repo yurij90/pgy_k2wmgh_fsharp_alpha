@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "k23lwwi93VY=",
+  "success": true,
+  "projectFilePath": "C:\\GitHub\\pgy_k2wmgh_fsharp_alpha\\pgy_k2wmgh_fsharp_alpha.fsproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\wolfd\\.nuget\\packages\\fsharp.core\\10.0.103\\fsharp.core.10.0.103.nupkg.sha512"
+  ],
+  "logs": []
+}

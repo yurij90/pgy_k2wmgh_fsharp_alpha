@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<linker>
+  <assembly fullname="pgy_k2wmgh_fsharp_alpha">
+    <resource name="FSharpSignatureData.pgy_k2wmgh_fsharp_alpha" action="remove"></resource>
+    <resource name="FSharpSignatureCompressedData.pgy_k2wmgh_fsharp_alpha" action="remove"></resource>
+    <resource name="FSharpSignatureDataB.pgy_k2wmgh_fsharp_alpha" action="remove"></resource>
+    <resource name="FSharpSignatureCompressedDataB.pgy_k2wmgh_fsharp_alpha" action="remove"></resource>
+    <resource name="FSharpOptimizationData.pgy_k2wmgh_fsharp_alpha" action="remove"></resource>
+    <resource name="FSharpOptimizationCompressedData.pgy_k2wmgh_fsharp_alpha" action="remove"></resource>
+    <resource name="FSharpOptimizationDataB.pgy_k2wmgh_fsharp_alpha" action="remove"></resource>
+    <resource name="FSharpOptimizationCompressedDataB.pgy_k2wmgh_fsharp_alpha" action="remove"></resource>
+    <resource name="FSharpOptimizationInfo.pgy_k2wmgh_fsharp_alpha" action="remove"></resource>
+    <resource name="FSharpSignatureInfo.pgy_k2wmgh_fsharp_alpha" action="remove"></resource>
+  </assembly>
+</linker>
